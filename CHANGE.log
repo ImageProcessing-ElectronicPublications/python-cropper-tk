@@ -1,0 +1,36 @@
+package: python-cropper-tk
+author: zvezdochiot [https://github.com/zvezdochiot]
+
+0.20180524
+Function Plus rectangle
+
+    Plus mode -> function Plus
+
+0.20180105
+Clean margin crop images
+
+    Clean margin crop images
+    +ToolTips
+
+0.20180102
+Normalizing rectangles
+
+    Normalizing the size of rectangles
+
+0.20180101
+Plus mode + Divide Factor
+
+    Plus mode (unification-expanding areas, effective with Zoom mode)
+    Divide Factor (reduced resolution of illustrations)
+    +Verify input parameters
+
+0.20171230
+Fix offset
+
+    Fix offset in clip
+
+0.20171229
+Zoom version
+
+    Zoom version
+    +Crop the image and creates a PDF with the same size

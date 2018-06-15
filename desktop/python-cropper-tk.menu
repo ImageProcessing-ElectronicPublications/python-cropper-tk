@@ -1,0 +1,14 @@
+?package(python-cropper-tk): needs="X11" \
+	section="Applications/Graphics" \
+	title="Cropper-Tk" \
+	longtitle="Crop the image" \
+	hints="Bitmap" \
+	icon="/usr/share/pixmaps/cropper-tk.xpm" \
+	command="/usr/bin/cropper-tk.py"
+?package(python-cropper-tk): needs="X11" \
+	section="Applications/Graphics" \
+	title="Cropper-Tk to PDF" \
+	longtitle="Crop the image and creates a PDF with the same size" \
+	hints="Bitmap" \
+	icon="/usr/share/pixmaps/cropper-tk.xpm" \
+	command="/usr/bin/croppertktopdf.py"
