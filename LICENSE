@@ -1,31 +1,30 @@
- Zlib License 
+Public Domain Mark 1.0
+ No Copyright
 
-/* zlib.h -- interface of the 'zlib' general purpose compression library
-  version 1.2.8, April 28th, 2013
+    This work has been identified as being free of known restrictions
+    under copyright law, including all related and neighboring rights.
 
-  Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler
+    You can copy, modify, distribute and perform the work, even for
+    commercial purposes, all without asking permission. See Other
+    Information below.
 
-  This software is provided 'as-is', without any express or implied
-  warranty.  In no event will the authors be held liable for any damages
-  arising from the use of this software.
+ Other Information
 
-  Permission is granted to anyone to use this software for any purpose,
-  including commercial applications, and to alter it and redistribute it
-  freely, subject to the following restrictions:
+    The work may not be free of known copyright restrictions in all
+    jurisdictions.
 
-  1. The origin of this software must not be misrepresented; you must not
-     claim that you wrote the original software. If you use this software
-     in a product, an acknowledgment in the product documentation would be
-     appreciated but is not required.
-  2. Altered source versions must be plainly marked as such, and must not be
-     misrepresented as being the original software.
-  3. This notice may not be removed or altered from any source distribution.
+    Persons may have other rights in or related to the work, such as
+    patent or trademark rights, and others may have rights in how the
+    work is used, such as publicity or privacy rights.
 
-  Jean-loup Gailly        Mark Adler
-  jloup@gzip.org          madler@alumni.caltech.edu
+    In some jurisdictions moral rights of the author may persist beyond
+    the term of copyright. These rights may include the right to be
+    identified as the author and the right to object to derogatory
+    treatments.
 
-*/
+    Unless expressly stated otherwise, the person who identified the work
+    makes no warranties about the work, and disclaims liability for all
+    uses of the work, to the fullest extent permitted by applicable law.
 
-Last modified 28 April 2013 
-
-Send all questions about zlib or its license to zlib@gzip.org
+    When using or citing the work, you should not imply endorsement by
+    the author or the person who identified the work.
