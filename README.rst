@@ -35,12 +35,12 @@ Run
 
 An example::
 
-  ./cropper-tk.py dog.jpg
+  ./croppertk.py dog.jpg
 
 or::
 
-  ./cropper-tk.py
+  ./croppertk.py
 
 Make a for loop to process a bunch of images::
 
-  for img in ~/images/*; do ./cropper-tk.py $img; done
+  for img in ~/images/*; do ./croppertk.py $img; done

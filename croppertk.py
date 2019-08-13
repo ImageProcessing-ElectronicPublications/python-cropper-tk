@@ -208,7 +208,7 @@ class Application(tk.Frame):
             self.y0 = ra.top
             za = (ra.left, ra.top, ra.right, ra.bottom)
             self.image_thumb = self.image.crop(za)
-            self.image_thumb.thumbnail(thumbsize)
+            self.image_thumb.thumbnail(thumbsize, Image.ANTIALIAS)
             self.image_thumb_rect = Rect(self.image_thumb.size)
             self.displayimage()
             x_scale = float(ra.w) / self.image_thumb_rect.w
@@ -235,7 +235,7 @@ class Application(tk.Frame):
         self.x0 = 0
         self.y0 = 0
         self.image_thumb = self.image.copy()
-        self.image_thumb.thumbnail(thumbsize)
+        self.image_thumb.thumbnail(thumbsize, Image.ANTIALIAS)
         self.image_thumb_rect = Rect(self.image_thumb.size)
         self.displayimage()
         x_scale = float(self.image_rect.w) / self.image_thumb_rect.w
@@ -307,7 +307,7 @@ class Application(tk.Frame):
         self.h = self.image_rect.h
 
         self.image_thumb = self.image.copy()
-        self.image_thumb.thumbnail(thumbsize)
+        self.image_thumb.thumbnail(thumbsize, Image.ANTIALIAS)
 
         self.image_thumb_rect = Rect(self.image_thumb.size)
 

@@ -1,12 +1,12 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Cropper-Tk to PDF
+Name=Cropper-Tk
 GenericName=Image Crooper
-Comment=Crop the image and creates a PDF with the same size
-Icon=cropper-tk
-Exec=croppertktopdf.py %U
-TryExec=croppertktopdf.py
+Comment=Crop the image
+Icon=croppertk
+Exec=croppertk %U
+TryExec=croppertk
 Categories=Graphics;2DGraphics;RasterGraphics;GTK;
 Terminal=false
 StartupNotify=true

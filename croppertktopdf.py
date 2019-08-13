@@ -319,7 +319,7 @@ class Application(tk.Frame):
         self.x0 = 0
         self.y0 = 0
         self.image_thumb = self.image.copy()
-        self.image_thumb.thumbnail(thumbsize)
+        self.image_thumb.thumbnail(thumbsize, Image.ANTIALIAS)
         self.image_thumb_rect = Rect(self.image_thumb.size)
         self.displayimage()
         x_scale = float(self.image_rect.w) / self.image_thumb_rect.w
@@ -381,7 +381,7 @@ class Application(tk.Frame):
         self.h = self.image_rect.h
 
         self.image_thumb = self.image.copy()
-        self.image_thumb.thumbnail(thumbsize)
+        self.image_thumb.thumbnail(thumbsize, Image.ANTIALIAS)
 
         self.image_thumb_rect = Rect(self.image_thumb.size)
 
@@ -427,7 +427,7 @@ class Application(tk.Frame):
         divw = int((croparea.w + divd) / self.div)
         divh = int((croparea.h + divd) / self.div)
         divsize = divw, divh
-        newimg.thumbnail(divsize)
+        newimg.thumbnail(divsize, Image.ANTIALIAS)
         newimg.save(filename)
 
     def clean_rect(self, croparea):
