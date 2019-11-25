@@ -15,6 +15,7 @@ Note the following packages are required:
 '''
 
 import Image
+import ImageFilter
 import ImageTk
 try:
     # for Python2
@@ -29,7 +30,7 @@ import re
 from reportlab.pdfgen.canvas import Canvas
 
 PROGNAME = 'CropperTktoPDF'
-VERSION = '0.20180524'
+VERSION = '0.20191113'
 
 thumbsize = 896, 608
 thumboffset = 16
@@ -38,59 +39,6 @@ default_mindpi = 36
 default_cleanmargin = 0
 default_format = 'png'
 default_div = 1
-
-class CreateToolTip(object):
-    """
-    create a tooltip for a given widget
-    """
-    def __init__(self, widget, text='widget info'):
-        self.waittime = 500     #miliseconds
-        self.wraplength = 180   #pixels
-        self.widget = widget
-        self.text = text
-        self.widget.bind("<Enter>", self.enter)
-        self.widget.bind("<Leave>", self.leave)
-        self.widget.bind("<ButtonPress>", self.leave)
-        self.id = None
-        self.tw = None
-
-    def enter(self, event=None):
-        self.schedule()
-
-    def leave(self, event=None):
-        self.unschedule()
-        self.hidetip()
-
-    def schedule(self):
-        self.unschedule()
-        self.id = self.widget.after(self.waittime, self.showtip)
-
-    def unschedule(self):
-        id = self.id
-        self.id = None
-        if id:
-            self.widget.after_cancel(id)
-
-    def showtip(self, event=None):
-        x = y = 0
-        x, y, cx, cy = self.widget.bbox("insert")
-        x += self.widget.winfo_rootx() + 25
-        y += self.widget.winfo_rooty() + 20
-        # creates a toplevel window
-        self.tw = tk.Toplevel(self.widget)
-        # Leaves only the label and removes the app window
-        self.tw.wm_overrideredirect(True)
-        self.tw.wm_geometry("+%d+%d" % (x, y))
-        label = tk.Label(self.tw, text=self.text, justify='left',
-                       background="#ffffff", relief='solid', borderwidth=1,
-                       wraplength = self.wraplength)
-        label.pack(ipadx=1)
-
-    def hidetip(self):
-        tw = self.tw
-        self.tw= None
-        if tw:
-            tw.destroy()
 
 class Application(tk.Frame):
     def __init__(self, master=None, filename=None):
@@ -103,8 +51,10 @@ class Application(tk.Frame):
         self.crop_count = 0
         self.canvas_rects = []
         self.crop_rects = []
+        self.region_rect = []
         self.current_rect = None
         self.zoommode = False
+        self.countour = False
         self.w = 1
         self.h = 1
         self.x0 = 0
@@ -147,67 +97,60 @@ class Application(tk.Frame):
 
         self.resetButton = tk.Button(self, text='Reset',
                                           activebackground='#F00', command=self.reset)
-        self.resetButton_ttp = CreateToolTip(self.resetButton, "Reset all rectangles")
 
         self.dpiLabel = tk.Label(self, text='DPI')
         self.dpiBox = tk.Text(self, height=1, width=4)
         self.dpiBox.insert(1.0, str(default_dpi))
-        self.dpiBox_ttp = CreateToolTip(self.dpiBox, "DPI for PDF document")
 
         self.formatLabel = tk.Label(self, text='F')
         self.formatBox = tk.Text(self, height=1, width=4)
         self.formatBox.insert(1.0, default_format)
-        self.formatBox_ttp = CreateToolTip(self.formatBox, "Format crop image: png, jpeg, tiff")
 
         self.divLabel = tk.Label(self, text='div')
         self.divBox = tk.Text(self, height=1, width=2)
         self.divBox.insert(1.0, str(default_div))
-        self.divBox_ttp = CreateToolTip(self.divBox, "Downsample crop image factor")
 
         self.undoButton = tk.Button(self, text='Undo',
                                          activebackground='#FF0', command=self.undo_last)
-        self.undoButton_ttp = CreateToolTip(self.undoButton, "Undo last rectangle")
+
+        self.countourButton = tk.Checkbutton(self, text='X',
+                                              command=self.countour_mode)
 
         self.zoomButton = tk.Checkbutton(self, text='Zoom',
                                               command=self.zoom_mode)
-        self.zoomButton_ttp = CreateToolTip(self.zoomButton, "On/Off Zoom mode")
 
         self.unzoomButton = tk.Button(self, text='<-|->',
                                            activebackground='#00F', command=self.unzoom_image)
-        self.unzoomButton_ttp = CreateToolTip(self.unzoomButton, "Unzoom, view all image")
 
         self.plusButton = tk.Button(self, text='+', command=self.plus_box)
-        self.plusButton_ttp = CreateToolTip(self.plusButton, "Plus box, extent rectangle")
 
         self.cleanmarginLabel = tk.Label(self, text='[]')
         self.cleanmarginBox = tk.Text(self, height=1, width=2)
         self.cleanmarginBox.insert(1.0, str(default_cleanmargin))
-        self.cleanmarginBox_ttp = CreateToolTip(self.cleanmarginBox, "Clean margin size for 0 frame")
 
         self.goButton = tk.Button(self, text='Crops',
                                        activebackground='#0F0', command=self.start_cropping)
-        self.goButton_ttp = CreateToolTip(self.goButton, "Go, begin cropping")
 
         self.quitButton = tk.Button(self, text='Quit',
                                          activebackground='#F00', command=self.quit)
-        self.quitButton_ttp = CreateToolTip(self.quitButton, "Exit")
 
-        self.canvas.grid(row=0, columnspan=13)
+        self.canvas.grid(row=0, columnspan=16)
         self.resetButton.grid(row=1, column=0)
-        self.dpiLabel.grid(row=1, column=1)
-        self.dpiBox.grid(row=1, column=2)
-        self.formatLabel.grid(row=1, column=3)
-        self.formatBox.grid(row=1, column=4)
-        self.divLabel.grid(row=1, column=5)
-        self.divBox.grid(row=1, column=6)
-        self.undoButton.grid(row=1, column=7)
-        self.zoomButton.grid(row=1, column=8)
-        self.unzoomButton.grid(row=1, column=9)
-        self.plusButton.grid(row=1, column=10)
-        self.cleanmarginLabel.grid(row=1, column=11)
-        self.cleanmarginBox.grid(row=1, column=12)
-        self.goButton.grid(row=1, column=13)
-        self.quitButton.grid(row=1, column=14)
+        self.countourButton.grid(row=1, column=1)
+        self.dpiLabel.grid(row=1, column=2)
+        self.dpiBox.grid(row=1, column=3)
+        self.formatLabel.grid(row=1, column=4)
+        self.formatBox.grid(row=1, column=5)
+        self.divLabel.grid(row=1, column=6)
+        self.divBox.grid(row=1, column=7)
+        self.undoButton.grid(row=1, column=8)
+        self.zoomButton.grid(row=1, column=9)
+        self.unzoomButton.grid(row=1, column=10)
+        self.plusButton.grid(row=1, column=11)
+        self.cleanmarginLabel.grid(row=1, column=12)
+        self.cleanmarginBox.grid(row=1, column=13)
+        self.goButton.grid(row=1, column=14)
+        self.quitButton.grid(row=1, column=15)
 
     def verify_params(self):
         self.dpi = int(self.dpiBox.get('1.0', tk.END))
@@ -263,7 +206,7 @@ class Application(tk.Frame):
         r.clip_to(self.image_thumb_rect)
 
         # ignore rects smaller than this size
-        if min(r.h, r.w) < 10:
+        if min(r.h, r.w) < 3:
             return
 
         ra = r
@@ -274,15 +217,8 @@ class Application(tk.Frame):
             self.canvas.delete(tk.ALL)
             self.x0 = ra.left
             self.y0 = ra.top
-            za = (ra.left, ra.top, ra.right, ra.bottom)
-            self.image_thumb = self.image.crop(za)
-            self.image_thumb.thumbnail(thumbsize)
-            self.image_thumb_rect = Rect(self.image_thumb.size)
+            self.region_rect = ra
             self.displayimage()
-            x_scale = float(ra.w) / self.image_thumb_rect.w
-            y_scale = float(ra.h) / self.image_thumb_rect.h
-            self.scale = (x_scale, y_scale)
-            self.redraw_rect()
             self.zoommode = False
             self.zoomButton.deselect()
         else:
@@ -291,11 +227,27 @@ class Application(tk.Frame):
             self.n = self.n + 1
         self.verify_params()
 
+    def countour_mode(self):
+        if self.countour:
+            self.countour = False
+        else:
+            self.countour = True
+        self.displayimage()
+
     def zoom_mode(self):
         if self.zoommode:
             self.zoommode = False
         else:
             self.zoommode = True
+
+    def unzoom_image(self):
+        self.canvas.delete(tk.ALL)
+        self.zoommode = False
+        self.zoomButton.deselect()
+        self.x0 = 0
+        self.y0 = 0
+        self.region_rect = Rect((0, 0), (self.w, self.h))
+        self.displayimage()
 
     def plus_box(self):
         if self.n > 1:
@@ -308,25 +260,8 @@ class Application(tk.Frame):
                 ra0 = ra0.plus_rect(ra)
                 self.crop_rects[self.n - 1] = ra0
                 self.displayimage()
-                self.redraw_rect()
                 self.zoommode = False
                 self.zoomButton.deselect()
-
-    def unzoom_image(self):
-        self.canvas.delete(tk.ALL)
-        self.zoommode = False
-        self.zoomButton.deselect()
-        self.x0 = 0
-        self.y0 = 0
-        self.image_thumb = self.image.copy()
-        self.image_thumb.thumbnail(thumbsize, Image.ANTIALIAS)
-        self.image_thumb_rect = Rect(self.image_thumb.size)
-        self.displayimage()
-        x_scale = float(self.image_rect.w) / self.image_thumb_rect.w
-        y_scale = float(self.image_rect.h) / self.image_thumb_rect.h
-        self.scale = (x_scale, y_scale)
-        self.redraw_rect()
-        self.verify_params()
 
     def redraw_rect(self):
         for croparea in self.crop_rects:
@@ -347,6 +282,14 @@ class Application(tk.Frame):
         self.canvas_rects.append(cr)
 
     def displayimage(self):
+        rr = (self.region_rect.left, self.region_rect.top, self.region_rect.right, self.region_rect.bottom)
+        self.image_thumb = self.image.crop(rr)
+        self.image_thumb.thumbnail(thumbsize, Image.ANTIALIAS)
+        if self.countour:
+            self.image_thumb = self.image_thumb.filter(ImageFilter.CONTOUR)
+
+        self.image_thumb_rect = Rect(self.image_thumb.size)
+
         self.photoimage = ImageTk.PhotoImage(self.image_thumb)
         w, h = self.image_thumb.size
         self.canvas.configure(
@@ -359,6 +302,11 @@ class Application(tk.Frame):
             anchor=tk.NW,
             image=self.photoimage)
 
+        x_scale = float(self.region_rect.w) / self.image_thumb_rect.w
+        y_scale = float(self.region_rect.h) / self.image_thumb_rect.h
+        self.scale = (x_scale, y_scale)
+        self.redraw_rect()
+
     def reset(self):
         self.canvas.delete(tk.ALL)
         self.zoommode = False
@@ -368,27 +316,20 @@ class Application(tk.Frame):
         self.canvas_rects = []
         self.crop_rects = []
         self.n = 0
+        self.region_rect = Rect((0, 0), (self.w, self.h))
 
         self.displayimage()
         self.verify_params()
 
     def loadimage(self):
-
         self.image = Image.open(self.filename)
         print self.image.size
         self.image_rect = Rect(self.image.size)
         self.w = self.image_rect.w
         self.h = self.image_rect.h
-
-        self.image_thumb = self.image.copy()
-        self.image_thumb.thumbnail(thumbsize, Image.ANTIALIAS)
-
-        self.image_thumb_rect = Rect(self.image_thumb.size)
+        self.region_rect = Rect((0, 0), (self.w, self.h))
 
         self.displayimage()
-        x_scale = float(self.image_rect.w) / self.image_thumb_rect.w
-        y_scale = float(self.image_rect.h) / self.image_thumb_rect.h
-        self.scale = (x_scale, y_scale)
         self.verify_params()
 
     def newfilename(self, filenum):
@@ -487,10 +428,10 @@ class Rect(object):
         y_scale = scale[1]
 
         r = Rect()
-        r.top = int((self.top - thumboffset) * y_scale)
-        r.bottom = int((self.bottom - thumboffset) * y_scale)
-        r.right = int((self.right - thumboffset) * x_scale)
-        r.left = int((self.left - thumboffset) * x_scale)
+        r.top = int((self.top - thumboffset) * y_scale + 0.5)
+        r.bottom = int((self.bottom - thumboffset) * y_scale + 0.5)
+        r.right = int((self.right - thumboffset) * x_scale + 0.5)
+        r.left = int((self.left - thumboffset) * x_scale + 0.5)
         r._update_dims()
 
         return r
