@@ -27,7 +27,7 @@ import sys
 import os
 
 PROGNAME = 'Cropper-Tk'
-VERSION = '0.20191125'
+VERSION = '0.20191128'
 
 thumbsize = 896, 608
 thumboffset = 16
@@ -245,6 +245,8 @@ class Application(tk.Frame):
         self.canvas.delete(tk.ALL)
         self.zoommode = False
         self.zoomButton.deselect()
+        self.countour = False
+        self.countourButton.deselect()
         self.canvas_rects = []
         self.crop_rects = []
         self.region_rect = Rect((0, 0), (self.w, self.h))
