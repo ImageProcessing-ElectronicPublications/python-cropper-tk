@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 '''
 photo_spliter.py - Provides a simple method to split a single image containing
 multiple images into individual files.
@@ -13,16 +12,9 @@ Note the following packages are required:
  python-imaging-tk
 '''
 
-import Image
-import ImageFilter
-import ImageTk
-try:
-    # for Python2
-    import Tkinter as tk
-except ImportError:
-    # for Python3
-    import tkinter as tk
-import tkFileDialog
+from PIL import Image, ImageTk, ImageFilter
+import tkinter as tk
+from tkinter import filedialog
 import sys
 import os
 
@@ -54,7 +46,7 @@ class Application(tk.Frame):
         self.n = 0
 
         if not(filename):
-            filenames = tkFileDialog.askopenfilenames(master=self,
+            filenames = filedialog.askopenfilenames(master=self,
                           defaultextension='.jpg', multiple=1, parent=self,
                           filetypes=(
                               (('Image Files'),
@@ -255,7 +247,7 @@ class Application(tk.Frame):
 
     def loadimage(self):
         self.image = Image.open(self.filename)
-        print self.image.size
+        print(self.image.size)
         self.image_rect = Rect(self.image.size)
         self.w = self.image_rect.w
         self.h = self.image_rect.h
@@ -272,7 +264,7 @@ class Application(tk.Frame):
         for croparea in self.crop_rects:
             cropcount += 1
             f = self.newfilename(cropcount)
-            print f, croparea
+            print(f, croparea)
             self.crop(croparea, f)
         self.quit()
 
@@ -403,7 +395,7 @@ def main():
     if len(sys.argv) > 1:
         filename = sys.argv[1]
     # else:
-        # print "Need a filename"
+        # print("Need a filename")
         # return
 
     app = Application(filename=filename)
