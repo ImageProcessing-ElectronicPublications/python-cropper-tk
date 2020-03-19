@@ -22,4 +22,8 @@ RUN apt-get -y autoclean && \
     apt-get -y autoremove && \
     rm -rf /var/lib/apt-get/lists/*
 
+COPY src /cropper 
+
 WORKDIR /cropper
+
+# CMD ./run_for_images.sh
