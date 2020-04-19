@@ -4,6 +4,7 @@ author: zvezdochiot [https://github.com/zvezdochiot]
 0.20200419
 RESET
 
+    python3 compatibility
     fix Reset (x0,y0)
 
 0.20191128

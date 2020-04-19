@@ -15,6 +15,7 @@ Note the following packages are required:
  python-reportlab
 '''
 
+pyver = 2
 import Image
 import ImageFilter
 import ImageTk
@@ -24,7 +25,13 @@ try:
 except ImportError:
     # for Python3
     import tkinter as tk
-import tkFileDialog
+    pyver = 3
+if pyver==2:
+    # for Python2
+    import tkFileDialog as tkfd
+else:
+    # for Python3
+    from tkinter import filedialog as tkfd
 import sys
 import os
 import re
@@ -67,7 +74,7 @@ class Application(tk.Frame):
         self.n = 0
 
         if not(filename):
-            filenames = tkFileDialog.askopenfilenames(master=self,
+            filenames = tkfd.askopenfilenames(master=self,
                           defaultextension='.jpg', multiple=1, parent=self,
                           filetypes=(
                               (('Image Files'),
@@ -326,7 +333,7 @@ class Application(tk.Frame):
 
     def loadimage(self):
         self.image = Image.open(self.filename)
-        print self.image.size
+        print (self.image.size)
         self.image_rect = Rect(self.image.size)
         self.w = self.image_rect.w
         self.h = self.image_rect.h
@@ -349,7 +356,7 @@ class Application(tk.Frame):
         for croparea in self.crop_rects:
             cropcount += 1
             f = self.newfilename(cropcount)
-            print f, croparea
+            print (f, croparea)
             self.crop(croparea, f)
             wt = round(croparea.w * 72.0 / self.dpi, 3)
             ht = round(croparea.h * 72.0 / self.dpi, 3)
