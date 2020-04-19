@@ -1,6 +1,11 @@
 package: python-cropper-tk
 author: zvezdochiot [https://github.com/zvezdochiot]
 
+0.20200419
+RESET
+
+    fix Reset (x0,y0)
+
 0.20191128
 RESET
 

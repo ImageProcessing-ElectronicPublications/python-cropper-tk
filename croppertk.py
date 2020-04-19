@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 '''
 photo_spliter.py - Provides a simple method to split a single image containing
 multiple images into individual files.
@@ -27,7 +28,7 @@ import sys
 import os
 
 PROGNAME = 'Cropper-Tk'
-VERSION = '0.20191128'
+VERSION = '0.20200419'
 
 thumbsize = 896, 608
 thumboffset = 16
@@ -250,6 +251,8 @@ class Application(tk.Frame):
         self.canvas_rects = []
         self.crop_rects = []
         self.region_rect = Rect((0, 0), (self.w, self.h))
+        self.x0 = 0
+        self.y0 = 0
 
         self.displayimage()
 
