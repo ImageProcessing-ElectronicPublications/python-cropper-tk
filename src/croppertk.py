@@ -1,4 +1,6 @@
-'''
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
 photo_spliter.py - Provides a simple method to split a single image containing
 multiple images into individual files.
 
@@ -10,19 +12,37 @@ Note the following packages are required:
  python-tk
  python-imaging
  python-imaging-tk
-'''
+"""
 
-from PIL import Image, ImageTk, ImageFilter
-import tkinter as tk
-from tkinter import filedialog
-import sys
+
 import os
+import sys
 
-PROGNAME = 'Cropper-Tk'
-VERSION = '0.20191128'
+py_version = sys.version
+
+if py_version[0] == "2":
+    # for Python2
+    import Image
+    import ImageFilter
+    import ImageTk
+    import Tkinter as tk
+    import tkFileDialog as tkfd
+
+elif py_version[0] == "3":
+    # for Python3
+    from PIL import Image, ImageTk, ImageFilter
+    import tkinter as tk
+    from tkinter import filedialog as tkfd
+
+else:
+    pass
+
+PROGNAME = "Cropper-Tk"
+VERSION = "0.20200419"
 
 thumbsize = 896, 608
 thumboffset = 16
+
 
 class Application(tk.Frame):
     def __init__(self, master=None, filename=None):
@@ -45,21 +65,24 @@ class Application(tk.Frame):
         self.y0 = 0
         self.n = 0
 
-        if not(filename):
-            filenames = filedialog.askopenfilenames(master=self,
-                          defaultextension='.jpg', multiple=1, parent=self,
-                          filetypes=(
-                              (('Image Files'),
-                               '.jpg .JPG .jpeg .JPEG .png .PNG .tif .TIF .tiff .TIFF'),
-                              (('JPEG Image Files'),
-                               '.jpg .JPG .jpeg .JPEG'),
-                              (('PNG Image Files'),
-                               '.png .PNG'),
-                              (('TIFF Image Files'),
-                               '.tif .TIF .tiff .TIFF'),
-                              (('All files'), '*'),
-                          ),
-                          title=('Select images to crop'))
+        if not (filename):
+            filenames = tkfd.askopenfilenames(
+                master=self,
+                defaultextension=".jpg",
+                multiple=1,
+                parent=self,
+                filetypes=(
+                    (
+                        ("Image Files"),
+                        ".jpg .JPG .jpeg .JPEG .png .PNG .tif .TIF .tiff .TIFF",
+                    ),
+                    (("JPEG Image Files"), ".jpg .JPG .jpeg .JPEG"),
+                    (("PNG Image Files"), ".png .PNG"),
+                    (("TIFF Image Files"), ".tif .TIF .tiff .TIFF"),
+                    (("All files"), "*"),
+                ),
+                title=("Select images to crop"),
+            )
             if filenames:
                 filename = filenames[0]
 
@@ -68,34 +91,46 @@ class Application(tk.Frame):
             self.loadimage()
 
     def createWidgets(self):
-        self.canvas = tk.Canvas(
-            self, height=1, width=1, relief=tk.SUNKEN)
-        self.canvas.bind('<Button-1>', self.canvas_mouse1_callback)
-        self.canvas.bind('<ButtonRelease-1>', self.canvas_mouseup1_callback)
-        self.canvas.bind('<B1-Motion>', self.canvas_mouseb1move_callback)
+        self.canvas = tk.Canvas(self, height=1, width=1, relief=tk.SUNKEN)
+        self.canvas.bind("<Button-1>", self.canvas_mouse1_callback)
+        self.canvas.bind("<ButtonRelease-1>", self.canvas_mouseup1_callback)
+        self.canvas.bind("<B1-Motion>", self.canvas_mouseb1move_callback)
 
-        self.resetButton = tk.Button(self, text='Reset',
-                                          activebackground='#F00', command=self.reset)
+        self.resetButton = tk.Button(
+            self, text="Reset", activebackground="#F00", command=self.reset
+        )
 
-        self.undoButton = tk.Button(self, text='Undo',
-                                         activebackground='#FF0', command=self.undo_last)
+        self.undoButton = tk.Button(
+            self, text="Undo", activebackground="#FF0", command=self.undo_last
+        )
 
-        self.countourButton = tk.Checkbutton(self, text='X',
-                                              command=self.countour_mode)
+        self.countourButton = tk.Checkbutton(
+            self, text="X", command=self.countour_mode
+        )
 
-        self.zoomButton = tk.Checkbutton(self, text='Zoom',
-                                              command=self.zoom_mode)
+        self.zoomButton = tk.Checkbutton(
+            self, text="Zoom", command=self.zoom_mode
+        )
 
-        self.unzoomButton = tk.Button(self, text='<-|->',
-                                           activebackground='#00F', command=self.unzoom_image)
+        self.unzoomButton = tk.Button(
+            self,
+            text="<-|->",
+            activebackground="#00F",
+            command=self.unzoom_image,
+        )
 
-        self.plusButton = tk.Button(self, text='+', command=self.plus_box)
+        self.plusButton = tk.Button(self, text="+", command=self.plus_box)
 
-        self.goButton = tk.Button(self, text='Crops',
-                                       activebackground='#0F0', command=self.start_cropping)
+        self.goButton = tk.Button(
+            self,
+            text="Crops",
+            activebackground="#0F0",
+            command=self.start_cropping,
+        )
 
-        self.quitButton = tk.Button(self, text='Quit',
-                                         activebackground='#F00', command=self.quit)
+        self.quitButton = tk.Button(
+            self, text="Quit", activebackground="#F00", command=self.quit
+        )
 
         self.canvas.grid(row=0, columnspan=8)
         self.resetButton.grid(row=1, column=0)
@@ -204,11 +239,17 @@ class Application(tk.Frame):
     def drawrect(self, rect):
         bbox = (rect.left, rect.top, rect.right, rect.bottom)
         cr = self.canvas.create_rectangle(
-            bbox, activefill='', fill='red', stipple='gray25')
+            bbox, activefill="", fill="red", stipple="gray25"
+        )
         self.canvas_rects.append(cr)
 
     def displayimage(self):
-        rr = (self.region_rect.left, self.region_rect.top, self.region_rect.right, self.region_rect.bottom)
+        rr = (
+            self.region_rect.left,
+            self.region_rect.top,
+            self.region_rect.right,
+            self.region_rect.bottom,
+        )
         self.image_thumb = self.image.crop(rr)
         self.image_thumb.thumbnail(thumbsize, Image.ANTIALIAS)
         if self.countour:
@@ -219,14 +260,12 @@ class Application(tk.Frame):
         self.photoimage = ImageTk.PhotoImage(self.image_thumb)
         w, h = self.image_thumb.size
         self.canvas.configure(
-            width=(w + 2 * thumboffset),
-            height=(h + 2 * thumboffset))
+            width=(w + 2 * thumboffset), height=(h + 2 * thumboffset)
+        )
 
         self.canvas.create_image(
-            thumboffset,
-            thumboffset,
-            anchor=tk.NW,
-            image=self.photoimage)
+            thumboffset, thumboffset, anchor=tk.NW, image=self.photoimage
+        )
 
         x_scale = float(self.region_rect.w) / self.image_thumb_rect.w
         y_scale = float(self.region_rect.h) / self.image_thumb_rect.h
@@ -242,6 +281,8 @@ class Application(tk.Frame):
         self.canvas_rects = []
         self.crop_rects = []
         self.region_rect = Rect((0, 0), (self.w, self.h))
+        self.x0 = 0
+        self.y0 = 0
 
         self.displayimage()
 
@@ -257,7 +298,7 @@ class Application(tk.Frame):
 
     def newfilename(self, filenum):
         f, e = os.path.splitext(self.filename)
-        return '%s__crop__%s%s' % (f, filenum, e)
+        return "%s__crop__%s%s" % (f, filenum, e)
 
     def start_cropping(self):
         cropcount = 0
@@ -386,8 +427,12 @@ class Rect(object):
         return r
 
     def __repr__(self):
-        return '(%d,%d)-(%d,%d)' % (self.left,
-                                    self.top, self.right, self.bottom)
+        return "(%d,%d)-(%d,%d)" % (
+            self.left,
+            self.top,
+            self.right,
+            self.bottom,
+        )
 
 
 def main():
@@ -395,13 +440,13 @@ def main():
     if len(sys.argv) > 1:
         filename = sys.argv[1]
     # else:
-        # print("Need a filename")
-        # return
+    # print "Need a filename"
+    # return
 
     app = Application(filename=filename)
     app.master.title(PROGNAME)
     app.mainloop()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
