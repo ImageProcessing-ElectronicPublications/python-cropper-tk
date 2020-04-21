@@ -14,28 +14,30 @@ Note the following packages are required:
  python-imaging-tk
 '''
 
-pyver = 2
-import Image
-import ImageFilter
-import ImageTk
-try:
-    # for Python2
-    import Tkinter as tk
-except ImportError:
-    # for Python3
-    import tkinter as tk
-    pyver = 3
-if pyver==2:
-    # for Python2
-    import tkFileDialog as tkfd
-else:
-    # for Python3
-    from tkinter import filedialog as tkfd
-import sys
 import os
+import sys
+
+py_version = sys.version
+
+if py_version[0] == "2":
+    # for Python2
+    import Image
+    import ImageFilter
+    import ImageTk
+    import Tkinter as tk
+    import tkFileDialog as tkfd
+
+elif py_version[0] == "3":
+    # for Python3
+    from PIL import Image, ImageTk, ImageFilter
+    import tkinter as tk
+    from tkinter import filedialog as tkfd
+
+else:
+    pass
 
 PROGNAME = 'Cropper-Tk'
-VERSION = '0.20200419'
+VERSION = '0.20200421'
 
 thumbsize = 896, 608
 thumboffset = 16
@@ -413,7 +415,7 @@ def main():
     if len(sys.argv) > 1:
         filename = sys.argv[1]
     # else:
-        # print "Need a filename"
+        # print ("Need a filename")
         # return
 
     app = Application(filename=filename)

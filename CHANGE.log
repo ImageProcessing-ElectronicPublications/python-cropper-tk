@@ -1,6 +1,11 @@
 package: python-cropper-tk
 author: zvezdochiot [https://github.com/zvezdochiot]
 
+0.20200421 [Ren Jie (https://github.com/notha99y)]
+COMPATIBLE
+
+    python3 compatibility
+
 0.20200419
 RESET
 
