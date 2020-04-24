@@ -18,31 +18,27 @@ Note the following packages are required:
 
 import os
 import sys
+import re
+from PIL import Image, ImageTk, ImageFilter, ImageChops
+from reportlab.pdfgen.canvas import Canvas
 
 py_version = sys.version
 
 if py_version[0] == "2":
     # for Python2
-    import Image
-    import ImageFilter
-    import ImageTk
     import Tkinter as tk
     import tkFileDialog as tkfd
 
 elif py_version[0] == "3":
     # for Python3
-    from PIL import Image, ImageTk, ImageFilter
     import tkinter as tk
     from tkinter import filedialog as tkfd
 
 else:
     pass
 
-import re
-from reportlab.pdfgen.canvas import Canvas
-
 PROGNAME = 'CropperTktoPDF'
-VERSION = '0.20200421'
+VERSION = '0.20200424'
 
 thumbsize = 896, 608
 thumboffset = 16
@@ -136,6 +132,8 @@ class Application(tk.Frame):
 
         self.plusButton = tk.Button(self, text='+', command=self.plus_box)
 
+        self.autoButton = tk.Button(self, text='Auto', command=self.autocrop)
+
         self.cleanmarginLabel = tk.Label(self, text='[]')
         self.cleanmarginBox = tk.Text(self, height=1, width=2)
         self.cleanmarginBox.insert(1.0, str(default_cleanmargin))
@@ -146,7 +144,7 @@ class Application(tk.Frame):
         self.quitButton = tk.Button(self, text='Quit',
                                          activebackground='#F00', command=self.quit)
 
-        self.canvas.grid(row=0, columnspan=16)
+        self.canvas.grid(row=0, columnspan=17)
         self.resetButton.grid(row=1, column=0)
         self.countourButton.grid(row=1, column=1)
         self.dpiLabel.grid(row=1, column=2)
@@ -159,10 +157,11 @@ class Application(tk.Frame):
         self.zoomButton.grid(row=1, column=9)
         self.unzoomButton.grid(row=1, column=10)
         self.plusButton.grid(row=1, column=11)
-        self.cleanmarginLabel.grid(row=1, column=12)
-        self.cleanmarginBox.grid(row=1, column=13)
-        self.goButton.grid(row=1, column=14)
-        self.quitButton.grid(row=1, column=15)
+        self.autoButton.grid(row=1, column=12)
+        self.cleanmarginLabel.grid(row=1, column=13)
+        self.cleanmarginBox.grid(row=1, column=14)
+        self.goButton.grid(row=1, column=15)
+        self.quitButton.grid(row=1, column=16)
 
     def verify_params(self):
         self.dpi = int(self.dpiBox.get('1.0', tk.END))
@@ -334,6 +333,22 @@ class Application(tk.Frame):
 
         self.displayimage()
         self.verify_params()
+
+    def autocrop(self):
+        border = 255
+        rr = (self.region_rect.left, self.region_rect.top, self.region_rect.right, self.region_rect.bottom)
+        imp = self.image.crop(rr)
+        bw = imp.convert('L')
+        bw = bw.filter(ImageFilter.MedianFilter)
+        bg = Image.new('1', imp.size, border)
+        diff = ImageChops.difference(bw, bg)
+        bbox = diff.getbbox()
+        brect = Rect((self.x0 + bbox[0], self.y0 + bbox[1]), (self.x0 + bbox[2], self.y0 + bbox[3]))
+        brect = brect.valid_rect(self.w, self.h)
+        self.crop_rects.append(brect)
+        self.n = self.n + 1
+        self.canvas.delete(tk.ALL)
+        self.displayimage()
 
     def loadimage(self):
         self.image = Image.open(self.filename)

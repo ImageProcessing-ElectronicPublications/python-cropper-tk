@@ -16,20 +16,17 @@ Note the following packages are required:
 
 import os
 import sys
+from PIL import Image, ImageTk, ImageFilter, ImageChops
 
 py_version = sys.version
 
 if py_version[0] == "2":
     # for Python2
-    import Image
-    import ImageFilter
-    import ImageTk
     import Tkinter as tk
     import tkFileDialog as tkfd
 
 elif py_version[0] == "3":
     # for Python3
-    from PIL import Image, ImageTk, ImageFilter
     import tkinter as tk
     from tkinter import filedialog as tkfd
 
@@ -37,7 +34,7 @@ else:
     pass
 
 PROGNAME = 'Cropper-Tk'
-VERSION = '0.20200421'
+VERSION = '0.20200424'
 
 thumbsize = 896, 608
 thumboffset = 16
@@ -109,21 +106,24 @@ class Application(tk.Frame):
 
         self.plusButton = tk.Button(self, text='+', command=self.plus_box)
 
+        self.autoButton = tk.Button(self, text='Auto', command=self.autocrop)
+
         self.goButton = tk.Button(self, text='Crops',
                                        activebackground='#0F0', command=self.start_cropping)
 
         self.quitButton = tk.Button(self, text='Quit',
                                          activebackground='#F00', command=self.quit)
 
-        self.canvas.grid(row=0, columnspan=8)
+        self.canvas.grid(row=0, columnspan=9)
         self.resetButton.grid(row=1, column=0)
         self.undoButton.grid(row=1, column=1)
         self.countourButton.grid(row=1, column=2)
         self.zoomButton.grid(row=1, column=3)
         self.unzoomButton.grid(row=1, column=4)
         self.plusButton.grid(row=1, column=5)
-        self.goButton.grid(row=1, column=6)
-        self.quitButton.grid(row=1, column=7)
+        self.autoButton.grid(row=1, column=6)
+        self.goButton.grid(row=1, column=7)
+        self.quitButton.grid(row=1, column=8)
 
     def canvas_mouse1_callback(self, event):
         self.croprect_start = (event.x, event.y)
@@ -263,6 +263,22 @@ class Application(tk.Frame):
         self.x0 = 0
         self.y0 = 0
 
+        self.displayimage()
+
+    def autocrop(self):
+        border = 255
+        rr = (self.region_rect.left, self.region_rect.top, self.region_rect.right, self.region_rect.bottom)
+        imp = self.image.crop(rr)
+        bw = imp.convert('L')
+        bw = bw.filter(ImageFilter.MedianFilter)
+        bg = Image.new('1', imp.size, border)
+        diff = ImageChops.difference(bw, bg)
+        bbox = diff.getbbox()
+        brect = Rect((self.x0 + bbox[0], self.y0 + bbox[1]), (self.x0 + bbox[2], self.y0 + bbox[3]))
+        brect = brect.valid_rect(self.w, self.h)
+        self.crop_rects.append(brect)
+        self.n = self.n + 1
+        self.canvas.delete(tk.ALL)
         self.displayimage()
 
     def loadimage(self):
