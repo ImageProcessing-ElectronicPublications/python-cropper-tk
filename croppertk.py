@@ -14,6 +14,9 @@ Note the following packages are required:
  python-imaging-tk
 '''
 
+PROGNAME = 'Cropper-Tk'
+VERSION = '0.20200501'
+
 import os
 import sys
 from PIL import Image, ImageTk, ImageFilter, ImageChops
@@ -33,9 +36,6 @@ elif py_version[0] == "3":
 else:
     pass
 
-PROGNAME = 'Cropper-Tk'
-VERSION = '0.20200424'
-
 thumbsize = 896, 608
 thumboffset = 16
 
@@ -54,6 +54,7 @@ class Application(tk.Frame):
         self.current_rect = None
         self.zoommode = False
         self.countour = False
+        self.acbwmode = False
         self.w = 1
         self.h = 1
         self.x0 = 0
@@ -108,13 +109,16 @@ class Application(tk.Frame):
 
         self.autoButton = tk.Button(self, text='Auto', command=self.autocrop)
 
+        self.acbwButton = tk.Checkbutton(self, text='BW',
+                                              command=self.ac_bw_mode)
+
         self.goButton = tk.Button(self, text='Crops',
                                        activebackground='#0F0', command=self.start_cropping)
 
         self.quitButton = tk.Button(self, text='Quit',
                                          activebackground='#F00', command=self.quit)
 
-        self.canvas.grid(row=0, columnspan=9)
+        self.canvas.grid(row=0, columnspan=10)
         self.resetButton.grid(row=1, column=0)
         self.undoButton.grid(row=1, column=1)
         self.countourButton.grid(row=1, column=2)
@@ -122,8 +126,9 @@ class Application(tk.Frame):
         self.unzoomButton.grid(row=1, column=4)
         self.plusButton.grid(row=1, column=5)
         self.autoButton.grid(row=1, column=6)
-        self.goButton.grid(row=1, column=7)
-        self.quitButton.grid(row=1, column=8)
+        self.acbwButton.grid(row=1, column=7)
+        self.goButton.grid(row=1, column=8)
+        self.quitButton.grid(row=1, column=9)
 
     def canvas_mouse1_callback(self, event):
         self.croprect_start = (event.x, event.y)
@@ -257,6 +262,8 @@ class Application(tk.Frame):
         self.zoomButton.deselect()
         self.countour = False
         self.countourButton.deselect()
+        self.acbwmode = False
+        self.acbwButton.deselect()
         self.canvas_rects = []
         self.crop_rects = []
         self.region_rect = Rect((0, 0), (self.w, self.h))
@@ -265,11 +272,20 @@ class Application(tk.Frame):
 
         self.displayimage()
 
+    def ac_bw_mode(self):
+        if self.acbwmode:
+            self.acbwmode = False
+        else:
+            self.acbwmode = True
+
     def autocrop(self):
         border = 255
         rr = (self.region_rect.left, self.region_rect.top, self.region_rect.right, self.region_rect.bottom)
         imp = self.image.crop(rr)
-        bw = imp.convert('L')
+        if self.acbwmode:
+            bw = imp.convert('1')
+        else:
+            bw = imp.convert('L')
         bw = bw.filter(ImageFilter.MedianFilter)
         bg = Image.new('1', imp.size, border)
         diff = ImageChops.difference(bw, bg)

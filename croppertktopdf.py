@@ -15,6 +15,8 @@ Note the following packages are required:
  python-reportlab
 '''
 
+PROGNAME = 'CropperTktoPDF'
+VERSION = '0.20200501'
 
 import os
 import sys
@@ -36,9 +38,6 @@ elif py_version[0] == "3":
 
 else:
     pass
-
-PROGNAME = 'CropperTktoPDF'
-VERSION = '0.20200424'
 
 thumbsize = 896, 608
 thumboffset = 16
@@ -63,6 +62,7 @@ class Application(tk.Frame):
         self.current_rect = None
         self.zoommode = False
         self.countour = False
+        self.acbwmode = False
         self.w = 1
         self.h = 1
         self.x0 = 0
@@ -134,6 +134,9 @@ class Application(tk.Frame):
 
         self.autoButton = tk.Button(self, text='Auto', command=self.autocrop)
 
+        self.acbwButton = tk.Checkbutton(self, text='BW',
+                                              command=self.ac_bw_mode)
+
         self.cleanmarginLabel = tk.Label(self, text='[]')
         self.cleanmarginBox = tk.Text(self, height=1, width=2)
         self.cleanmarginBox.insert(1.0, str(default_cleanmargin))
@@ -144,7 +147,7 @@ class Application(tk.Frame):
         self.quitButton = tk.Button(self, text='Quit',
                                          activebackground='#F00', command=self.quit)
 
-        self.canvas.grid(row=0, columnspan=17)
+        self.canvas.grid(row=0, columnspan=18)
         self.resetButton.grid(row=1, column=0)
         self.countourButton.grid(row=1, column=1)
         self.dpiLabel.grid(row=1, column=2)
@@ -158,10 +161,11 @@ class Application(tk.Frame):
         self.unzoomButton.grid(row=1, column=10)
         self.plusButton.grid(row=1, column=11)
         self.autoButton.grid(row=1, column=12)
-        self.cleanmarginLabel.grid(row=1, column=13)
-        self.cleanmarginBox.grid(row=1, column=14)
-        self.goButton.grid(row=1, column=15)
-        self.quitButton.grid(row=1, column=16)
+        self.acbwButton.grid(row=1, column=13)
+        self.cleanmarginLabel.grid(row=1, column=14)
+        self.cleanmarginBox.grid(row=1, column=15)
+        self.goButton.grid(row=1, column=16)
+        self.quitButton.grid(row=1, column=17)
 
     def verify_params(self):
         self.dpi = int(self.dpiBox.get('1.0', tk.END))
@@ -324,6 +328,8 @@ class Application(tk.Frame):
         self.zoomButton.deselect()
         self.countour = False
         self.countourButton.deselect()
+        self.acbwmode = False
+        self.acbwButton.deselect()
         self.canvas_rects = []
         self.crop_rects = []
         self.n = 0
@@ -334,11 +340,20 @@ class Application(tk.Frame):
         self.displayimage()
         self.verify_params()
 
+    def ac_bw_mode(self):
+        if self.acbwmode:
+            self.acbwmode = False
+        else:
+            self.acbwmode = True
+
     def autocrop(self):
         border = 255
         rr = (self.region_rect.left, self.region_rect.top, self.region_rect.right, self.region_rect.bottom)
         imp = self.image.crop(rr)
-        bw = imp.convert('L')
+        if self.acbwmode:
+            bw = imp.convert('1')
+        else:
+            bw = imp.convert('L')
         bw = bw.filter(ImageFilter.MedianFilter)
         bg = Image.new('1', imp.size, border)
         diff = ImageChops.difference(bw, bg)
