@@ -90,45 +90,61 @@ class Application(tk.Frame):
         self.canvas.bind('<ButtonRelease-1>', self.canvas_mouseup1_callback)
         self.canvas.bind('<B1-Motion>', self.canvas_mouseb1move_callback)
 
-        self.resetButton = tk.Button(self, text='Reset',
-                                          activebackground='#F00', command=self.reset)
-
-        self.undoButton = tk.Button(self, text='Undo',
-                                         activebackground='#FF0', command=self.undo_last)
-
         self.countourButton = tk.Checkbutton(self, text='X',
                                               command=self.countour_mode)
 
-        self.zoomButton = tk.Checkbutton(self, text='Zoom',
+        self.workFrame = tk.LabelFrame(self)
+
+        self.zoomFrame = tk.LabelFrame(self.workFrame, text='Zooming')
+
+        self.zoomButton = tk.Checkbutton(self.zoomFrame, text='Zoom',
                                               command=self.zoom_mode)
 
-        self.unzoomButton = tk.Button(self, text='<-|->',
+        self.unzoomButton = tk.Button(self.zoomFrame, text='<-|->',
                                            activebackground='#00F', command=self.unzoom_image)
 
-        self.plusButton = tk.Button(self, text='+', command=self.plus_box)
+        self.zoomButton.grid(row=0, column=0)
+        self.unzoomButton.grid(row=0, column=1)
 
-        self.autoButton = tk.Button(self, text='Auto', command=self.autocrop)
+        self.autoFrame = tk.LabelFrame(self.workFrame, text='AutoCrop')
 
-        self.acbwButton = tk.Checkbutton(self, text='BW',
+        self.autoButton = tk.Button(self.autoFrame, text='Auto', command=self.autocrop)
+
+        self.acbwButton = tk.Checkbutton(self.autoFrame, text='BW',
                                               command=self.ac_bw_mode)
 
-        self.goButton = tk.Button(self, text='Crops',
+        self.autoButton.grid(row=0, column=0)
+        self.acbwButton.grid(row=0, column=1)
+
+        self.plusButton = tk.Button(self.workFrame, text='+', command=self.plus_box)
+
+        self.zoomFrame.grid(row=0, column=0, padx=5)
+        self.autoFrame.grid(row=0, column=1, padx=5)
+        self.plusButton.grid(row=0, column=2, padx=5)
+
+        self.ActionFrame = tk.LabelFrame(self, text='Action')
+
+        self.resetButton = tk.Button(self.ActionFrame, text='Reset',
+                                          activebackground='#F00', command=self.reset)
+
+        self.undoButton = tk.Button(self.ActionFrame, text='Undo',
+                                         activebackground='#FF0', command=self.undo_last)
+
+        self.goButton = tk.Button(self.ActionFrame, text='Crops',
                                        activebackground='#0F0', command=self.start_cropping)
 
-        self.quitButton = tk.Button(self, text='Quit',
+        self.quitButton = tk.Button(self.ActionFrame, text='Quit',
                                          activebackground='#F00', command=self.quit)
 
-        self.canvas.grid(row=0, columnspan=10)
-        self.resetButton.grid(row=1, column=0)
-        self.undoButton.grid(row=1, column=1)
-        self.countourButton.grid(row=1, column=2)
-        self.zoomButton.grid(row=1, column=3)
-        self.unzoomButton.grid(row=1, column=4)
-        self.plusButton.grid(row=1, column=5)
-        self.autoButton.grid(row=1, column=6)
-        self.acbwButton.grid(row=1, column=7)
-        self.goButton.grid(row=1, column=8)
-        self.quitButton.grid(row=1, column=9)
+        self.resetButton.grid(row=0, column=0)
+        self.undoButton.grid(row=0, column=1)
+        self.goButton.grid(row=0, column=2)
+        self.quitButton.grid(row=0, column=3)
+
+        self.canvas.grid(row=0, columnspan=3)
+        self.countourButton.grid(row=1, column=0)
+        self.workFrame.grid(row=1, column=1)
+        self.ActionFrame.grid(row=1, column=2)
 
     def canvas_mouse1_callback(self, event):
         self.croprect_start = (event.x, event.y)
@@ -218,11 +234,13 @@ class Application(tk.Frame):
             self.drawrect(croparea.rescale_rect(self.scale, self.x0, self.y0))
 
     def undo_last(self):
-        if self.canvas_rects:
-            r = self.canvas_rects.pop()
-            self.canvas.delete(r)
-        if self.crop_rects:
-            self.crop_rects.pop()
+        if (self.n > 0):
+            if self.canvas_rects:
+                r = self.canvas_rects.pop()
+                self.canvas.delete(r)
+            if self.crop_rects:
+                self.crop_rects.pop()
+            self.n = self.n - 1
 
     def drawrect(self, rect):
         bbox = (rect.left, rect.top, rect.right, rect.bottom)
@@ -267,6 +285,7 @@ class Application(tk.Frame):
         self.canvas_rects = []
         self.crop_rects = []
         self.region_rect = Rect((0, 0), (self.w, self.h))
+        self.n = 0
         self.x0 = 0
         self.y0 = 0
 

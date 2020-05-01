@@ -103,69 +103,92 @@ class Application(tk.Frame):
         self.canvas.bind('<ButtonRelease-1>', self.canvas_mouseup1_callback)
         self.canvas.bind('<B1-Motion>', self.canvas_mouseb1move_callback)
 
-        self.resetButton = tk.Button(self, text='Reset',
-                                          activebackground='#F00', command=self.reset)
-
-        self.dpiLabel = tk.Label(self, text='DPI')
-        self.dpiBox = tk.Text(self, height=1, width=4)
-        self.dpiBox.insert(1.0, str(default_dpi))
-
-        self.formatLabel = tk.Label(self, text='F')
-        self.formatBox = tk.Text(self, height=1, width=4)
-        self.formatBox.insert(1.0, default_format)
-
-        self.divLabel = tk.Label(self, text='div')
-        self.divBox = tk.Text(self, height=1, width=2)
-        self.divBox.insert(1.0, str(default_div))
-
-        self.undoButton = tk.Button(self, text='Undo',
-                                         activebackground='#FF0', command=self.undo_last)
-
         self.countourButton = tk.Checkbutton(self, text='X',
                                               command=self.countour_mode)
 
-        self.zoomButton = tk.Checkbutton(self, text='Zoom',
+        self.workFrame = tk.LabelFrame(self)
+
+        self.outputFrame = tk.LabelFrame(self.workFrame, text='Output')
+
+        self.dpiLabel = tk.Label(self.outputFrame, text='DPI')
+        self.dpiBox = tk.Text(self.outputFrame, height=1, width=4)
+        self.dpiBox.insert(1.0, str(default_dpi))
+
+        self.formatLabel = tk.Label(self.outputFrame, text='F')
+        self.formatBox = tk.Text(self.outputFrame, height=1, width=4)
+        self.formatBox.insert(1.0, default_format)
+
+        self.divLabel = tk.Label(self.outputFrame, text='div')
+        self.divBox = tk.Text(self.outputFrame, height=1, width=2)
+        self.divBox.insert(1.0, str(default_div))
+
+        self.dpiLabel.grid(row=0, column=0)
+        self.dpiBox.grid(row=0, column=1)
+        self.formatLabel.grid(row=0, column=2)
+        self.formatBox.grid(row=0, column=3)
+
+        self.zoomFrame = tk.LabelFrame(self.workFrame, text='Zooming')
+
+        self.zoomButton = tk.Checkbutton(self.zoomFrame, text='Zoom',
                                               command=self.zoom_mode)
 
-        self.unzoomButton = tk.Button(self, text='<-|->',
+        self.unzoomButton = tk.Button(self.zoomFrame, text='<-|->',
                                            activebackground='#00F', command=self.unzoom_image)
 
-        self.plusButton = tk.Button(self, text='+', command=self.plus_box)
+        self.zoomButton.grid(row=0, column=0)
+        self.unzoomButton.grid(row=0, column=1)
 
-        self.autoButton = tk.Button(self, text='Auto', command=self.autocrop)
+        self.autoFrame = tk.LabelFrame(self.workFrame, text='AutoCrop')
 
-        self.acbwButton = tk.Checkbutton(self, text='BW',
+        self.autoButton = tk.Button(self.autoFrame, text='Auto', command=self.autocrop)
+
+        self.acbwButton = tk.Checkbutton(self.autoFrame, text='BW',
                                               command=self.ac_bw_mode)
 
-        self.cleanmarginLabel = tk.Label(self, text='[]')
-        self.cleanmarginBox = tk.Text(self, height=1, width=2)
+        self.autoButton.grid(row=0, column=0)
+        self.acbwButton.grid(row=0, column=1)
+
+        self.marginFrame = tk.LabelFrame(self.workFrame, text='Margin')
+
+        self.cleanmarginLabel = tk.Label(self.marginFrame, text='[]')
+        self.cleanmarginBox = tk.Text(self.marginFrame, height=1, width=2)
         self.cleanmarginBox.insert(1.0, str(default_cleanmargin))
 
-        self.goButton = tk.Button(self, text='Crops',
+        self.cleanmarginLabel.grid(row=0, column=0)
+        self.cleanmarginBox.grid(row=0, column=1)
+
+        self.plusButton = tk.Button(self.workFrame, text='+', command=self.plus_box)
+
+        self.outputFrame.grid(row=0, column=0, padx=5)
+        self.zoomFrame.grid(row=0, column=1, padx=5)
+        self.autoFrame.grid(row=0, column=2, padx=5)
+        self.marginFrame.grid(row=0, column=3, padx=5)
+        self.plusButton.grid(row=0, column=4, padx=5)
+
+
+        self.ActionFrame = tk.LabelFrame(self, text='Action')
+
+        self.resetButton = tk.Button(self.ActionFrame, text='Reset',
+                                          activebackground='#F00', command=self.reset)
+
+        self.undoButton = tk.Button(self.ActionFrame, text='Undo',
+                                         activebackground='#FF0', command=self.undo_last)
+
+        self.goButton = tk.Button(self.ActionFrame, text='Crops',
                                        activebackground='#0F0', command=self.start_cropping)
 
-        self.quitButton = tk.Button(self, text='Quit',
+        self.quitButton = tk.Button(self.ActionFrame, text='Quit',
                                          activebackground='#F00', command=self.quit)
 
-        self.canvas.grid(row=0, columnspan=18)
-        self.resetButton.grid(row=1, column=0)
-        self.countourButton.grid(row=1, column=1)
-        self.dpiLabel.grid(row=1, column=2)
-        self.dpiBox.grid(row=1, column=3)
-        self.formatLabel.grid(row=1, column=4)
-        self.formatBox.grid(row=1, column=5)
-        self.divLabel.grid(row=1, column=6)
-        self.divBox.grid(row=1, column=7)
-        self.undoButton.grid(row=1, column=8)
-        self.zoomButton.grid(row=1, column=9)
-        self.unzoomButton.grid(row=1, column=10)
-        self.plusButton.grid(row=1, column=11)
-        self.autoButton.grid(row=1, column=12)
-        self.acbwButton.grid(row=1, column=13)
-        self.cleanmarginLabel.grid(row=1, column=14)
-        self.cleanmarginBox.grid(row=1, column=15)
-        self.goButton.grid(row=1, column=16)
-        self.quitButton.grid(row=1, column=17)
+        self.resetButton.grid(row=0, column=0)
+        self.undoButton.grid(row=0, column=1)
+        self.goButton.grid(row=0, column=2)
+        self.quitButton.grid(row=0, column=3)
+
+        self.canvas.grid(row=0, columnspan=3)
+        self.countourButton.grid(row=1, column=0)
+        self.workFrame.grid(row=1, column=1)
+        self.ActionFrame.grid(row=1, column=2)
 
     def verify_params(self):
         self.dpi = int(self.dpiBox.get('1.0', tk.END))
@@ -283,11 +306,12 @@ class Application(tk.Frame):
             self.drawrect(croparea.rescale_rect(self.scale, self.x0, self.y0))
 
     def undo_last(self):
-        if self.canvas_rects:
-            r = self.canvas_rects.pop()
-            self.canvas.delete(r)
-        if self.crop_rects:
-            self.crop_rects.pop()
+        if (self.n > 0):
+            if self.canvas_rects:
+                r = self.canvas_rects.pop()
+                self.canvas.delete(r)
+            if self.crop_rects:
+                self.crop_rects.pop()
             self.n = self.n - 1
 
     def drawrect(self, rect):
