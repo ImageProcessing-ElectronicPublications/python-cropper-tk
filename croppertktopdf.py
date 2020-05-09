@@ -16,13 +16,16 @@ Note the following packages are required:
 '''
 
 PROGNAME = 'CropperTktoPDF'
-VERSION = '0.20200501'
+VERSION = '0.20200509'
 
 import os
 import sys
 import re
 from PIL import Image, ImageTk, ImageFilter, ImageChops
 from reportlab.pdfgen.canvas import Canvas
+
+reload(sys)
+sys.setdefaultencoding(sys.stdout.encoding)
 
 py_version = sys.version
 

@@ -15,11 +15,14 @@ Note the following packages are required:
 '''
 
 PROGNAME = 'Cropper-Tk'
-VERSION = '0.20200501'
+VERSION = '0.20200509'
 
 import os
 import sys
 from PIL import Image, ImageTk, ImageFilter, ImageChops
+
+reload(sys)
+sys.setdefaultencoding(sys.stdout.encoding)
 
 py_version = sys.version
 

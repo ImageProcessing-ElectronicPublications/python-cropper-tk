@@ -1,6 +1,11 @@
 package: python-cropper-tk
 author: zvezdochiot [https://github.com/zvezdochiot]
 
+0.20200509
+ENCODING
+
+    fix sys.encoding
+
 0.20200501
 AUTOCROP
 
