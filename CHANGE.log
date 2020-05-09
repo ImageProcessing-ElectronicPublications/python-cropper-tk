@@ -5,6 +5,7 @@ author: zvezdochiot [https://github.com/zvezdochiot]
 ENCODING
 
     fix sys.encoding
+    enable/disable button
 
 0.20200501
 AUTOCROP

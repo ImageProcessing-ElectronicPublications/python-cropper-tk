@@ -50,7 +50,6 @@ class Application(tk.Frame):
         self.createWidgets()
         self.croprect_start = None
         self.croprect_end = None
-        self.crop_count = 0
         self.canvas_rects = []
         self.crop_rects = []
         self.region_rect = []
@@ -58,6 +57,7 @@ class Application(tk.Frame):
         self.zoommode = False
         self.countour = False
         self.acbwmode = False
+        self.zooming = False
         self.w = 1
         self.h = 1
         self.x0 = 0
@@ -149,6 +149,21 @@ class Application(tk.Frame):
         self.workFrame.grid(row=1, column=1)
         self.ActionFrame.grid(row=1, column=2)
 
+    def set_button_state(self):
+        if self.n > 0:
+            self.plusButton.config(state = 'normal')
+            self.undoButton.config(state = 'normal')
+            self.goButton.config(state = 'normal')
+        else:
+            self.plusButton.config(state = 'disabled')
+            self.undoButton.config(state = 'disabled')
+            self.goButton.config(state = 'disabled')
+        if self.zooming:
+            self.unzoomButton.config(state = 'normal')
+        else:
+            self.unzoomButton.config(state = 'disabled')
+            
+
     def canvas_mouse1_callback(self, event):
         self.croprect_start = (event.x, event.y)
 
@@ -191,10 +206,12 @@ class Application(tk.Frame):
             self.displayimage()
             self.zoommode = False
             self.zoomButton.deselect()
+            self.zooming = True
         else:
             self.drawrect(r)
             self.crop_rects.append(ra)
             self.n = self.n + 1
+        self.set_button_state()
 
     def countour_mode(self):
         if self.countour:
@@ -216,6 +233,7 @@ class Application(tk.Frame):
         self.x0 = 0
         self.y0 = 0
         self.region_rect = Rect((0, 0), (self.w, self.h))
+        self.zooming = False
         self.displayimage()
 
     def plus_box(self):
@@ -244,6 +262,8 @@ class Application(tk.Frame):
             if self.crop_rects:
                 self.crop_rects.pop()
             self.n = self.n - 1
+        self.set_button_state()
+            
 
     def drawrect(self, rect):
         bbox = (rect.left, rect.top, rect.right, rect.bottom)
@@ -276,11 +296,13 @@ class Application(tk.Frame):
         y_scale = float(self.region_rect.h) / self.image_thumb_rect.h
         self.scale = (x_scale, y_scale)
         self.redraw_rect()
+        self.set_button_state()
 
     def reset(self):
         self.canvas.delete(tk.ALL)
         self.zoommode = False
         self.zoomButton.deselect()
+        self.zooming = False
         self.countour = False
         self.countourButton.deselect()
         self.acbwmode = False
