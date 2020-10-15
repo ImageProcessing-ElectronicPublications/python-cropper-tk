@@ -1,5 +1,10 @@
 package: python-cropper-tk
-author: zvezdochiot [https://github.com/zvezdochiot]
+author: zvezdochiot [https://github.com/zvezdochiot],  potatoboiler [https://github.com/potatoboiler]
+
+0.20201015
+REORGANIZE
+
+    refactoring code for Python3 by @potatoboiler
 
 0.20200509
 ENCODING
