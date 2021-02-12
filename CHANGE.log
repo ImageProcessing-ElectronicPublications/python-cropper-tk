@@ -1,5 +1,11 @@
 package: python-cropper-tk
-author: zvezdochiot [https://github.com/zvezdochiot],  potatoboiler [https://github.com/potatoboiler]
+author: zvezdochiot [https://github.com/zvezdochiot]
+
+0.20210212
+COMPATIBLE
+
+    fixed: python3 compatibility
+    remove code for Python3 by @potatoboiler
 
 0.20201015
 REORGANIZE
