@@ -15,7 +15,7 @@ Note the following packages are required:
 '''
 
 PROGNAME = 'Cropper-Tk'
-VERSION = '0.20210212'
+VERSION = '0.20210218'
 
 import os
 import sys
@@ -62,6 +62,7 @@ class Application(tk.Frame):
         self.h = 1
         self.x0 = 0
         self.y0 = 0
+        self.scale = None
         self.n = 0
 
         if not(filename):
@@ -92,6 +93,8 @@ class Application(tk.Frame):
         self.canvas.bind('<Button-1>', self.canvas_mouse1_callback)
         self.canvas.bind('<ButtonRelease-1>', self.canvas_mouseup1_callback)
         self.canvas.bind('<B1-Motion>', self.canvas_mouseb1move_callback)
+
+        self.sizeLabel = tk.Label(self, text="0x0")
 
         self.countourButton = tk.Checkbutton(self, text='X',
                                               command=self.countour_mode)
@@ -148,6 +151,7 @@ class Application(tk.Frame):
         self.countourButton.grid(row=1, column=0)
         self.workFrame.grid(row=1, column=1)
         self.ActionFrame.grid(row=1, column=2)
+        self.sizeLabel.grid(row=2, column=0, columnspan=3)
 
     def set_button_state(self):
         if self.n > 0:
@@ -162,7 +166,6 @@ class Application(tk.Frame):
             self.unzoomButton.config(state = 'normal')
         else:
             self.unzoomButton.config(state = 'disabled')
-            
 
     def canvas_mouse1_callback(self, event):
         self.croprect_start = (event.x, event.y)
@@ -175,8 +178,12 @@ class Application(tk.Frame):
         x2 = event.x
         y2 = event.y
         bbox = (x1, y1, x2, y2)
+        dx = int((x2 - x1) * self.scale[0] * 10 + 0.5) * 0.1
+        dy = int((y2 - y1) * self.scale[1] * 10 + 0.5) * 0.1
+        dt = str(dx) + "x" + str(dy)
         cr = self.canvas.create_rectangle(bbox)
         self.current_rect = cr
+        self.sizeLabel.configure(text=dt)
 
     def canvas_mouseup1_callback(self, event):
         self.croprect_end = (event.x, event.y)
@@ -263,7 +270,6 @@ class Application(tk.Frame):
                 self.crop_rects.pop()
             self.n = self.n - 1
         self.set_button_state()
-            
 
     def drawrect(self, rect):
         bbox = (rect.left, rect.top, rect.right, rect.bottom)

@@ -1,6 +1,11 @@
 package: python-cropper-tk
 author: zvezdochiot [https://github.com/zvezdochiot]
 
+0.20210218
+INDICATOR
+
+    added rectangle size indicator
+
 0.20210212
 COMPATIBLE
 
