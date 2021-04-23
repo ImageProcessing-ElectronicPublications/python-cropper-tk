@@ -15,10 +15,11 @@ Note the following packages are required:
 '''
 
 PROGNAME = 'Cropper-Tk'
-VERSION = '0.20210218'
+VERSION = '0.20210423'
 
 import os
 import sys
+import argparse
 from PIL import Image, ImageTk, ImageFilter, ImageChops
 
 py_version = sys.version
@@ -26,7 +27,9 @@ py_version = sys.version
 if py_version[0] == "2":
     # for Python2
     reload(sys)
-    sys.setdefaultencoding(sys.stdout.encoding)
+    sysenc = sys.stdout.encoding
+    if sysenc:
+        sys.setdefaultencoding(sysenc)
 
     import Tkinter as tk
     import tkFileDialog as tkfd
@@ -492,18 +495,15 @@ class Rect(object):
                                     self.top, self.right, self.bottom)
 
 
-def main():
-    filename = None
-    if len(sys.argv) > 1:
-        filename = sys.argv[1]
-    # else:
-        # print ("Need a filename")
-        # return
-
+def main(filename):
     app = Application(filename=filename)
     app.master.title(PROGNAME)
     app.mainloop()
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(
+        description='Cropper Image')
+    parser.add_argument('filename', nargs='?', default=None, help='image file name')
+    args = parser.parse_args()
+    main(args.filename)

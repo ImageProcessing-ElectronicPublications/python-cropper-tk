@@ -16,10 +16,11 @@ Note the following packages are required:
 '''
 
 PROGNAME = 'CropperTktoPDF'
-VERSION = '0.20210218'
+VERSION = '0.20210423'
 
 import os
 import sys
+import argparse
 import re
 from PIL import Image, ImageTk, ImageFilter, ImageChops
 from reportlab.pdfgen.canvas import Canvas
@@ -29,7 +30,9 @@ py_version = sys.version
 if py_version[0] == "2":
     # for Python2
     reload(sys)
-    sys.setdefaultencoding(sys.stdout.encoding)
+    sysenc = sys.stdout.encoding
+    if sysenc:
+        sys.setdefaultencoding(sysenc)
 
     import Tkinter as tk
     import tkFileDialog as tkfd
@@ -51,10 +54,12 @@ default_format = 'png'
 default_div = 1
 
 class Application(tk.Frame):
-    def __init__(self, master=None, filename=None):
+    def __init__(self, master=None, filename=None, dpi=default_dpi, iformat=default_format, pdfname=None):
 
         tk.Frame.__init__(self, master)
         self.grid()
+        self.dpi = dpi
+        self.ext = iformat
         self.createWidgets()
         self.croprect_start = None
         self.croprect_end = None
@@ -70,8 +75,6 @@ class Application(tk.Frame):
         self.h = 1
         self.x0 = 0
         self.y0 = 0
-        self.dpi = default_dpi
-        self.ext = default_format
         self.div = default_div
         self.cleanmargin = default_cleanmargin
         self.scale = None
@@ -95,9 +98,13 @@ class Application(tk.Frame):
             if filenames:
                 filename = filenames[0]
 
+        if pdfname:
+            self.outfile = pdfname
+        else:
+            if filename:
+                self.outfile = filename + '.pdf'
         if filename:
             self.filename = filename
-            self.outfile = self.filename + '.pdf'
             self.loadimage()
 
     def createWidgets(self):
@@ -118,11 +125,11 @@ class Application(tk.Frame):
 
         self.dpiLabel = tk.Label(self.outputFrame, text='DPI')
         self.dpiBox = tk.Text(self.outputFrame, height=1, width=4)
-        self.dpiBox.insert(1.0, str(default_dpi))
+        self.dpiBox.insert(1.0, str(self.dpi))
 
         self.formatLabel = tk.Label(self.outputFrame, text='F')
         self.formatBox = tk.Text(self.outputFrame, height=1, width=4)
-        self.formatBox.insert(1.0, default_format)
+        self.formatBox.insert(1.0, self.ext)
 
         self.divLabel = tk.Label(self.outputFrame, text='div')
         self.divBox = tk.Text(self.outputFrame, height=1, width=2)
@@ -609,18 +616,36 @@ class Rect(object):
         return '(%d,%d)-(%d,%d)' % (self.left,
                                     self.top, self.right, self.bottom)
 
-def main():
-    filename = None
-    if len(sys.argv) > 1:
-        filename = sys.argv[1]
-    # else:
-        # print ("Need a filename")
-        # return
-
-    app = Application(filename=filename)
+def main(filename, dpi, iformat, pdfname):
+    app = Application(filename=filename, dpi=dpi, iformat=iformat, pdfname=pdfname)
     app.master.title(PROGNAME)
     app.mainloop()
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(
+        description='Cropper Image to PDF')
+    parser.add_argument(
+        '-d',
+        '--dpi',
+        metavar='dpi',
+        type=int,
+        default=default_dpi,
+        help='dpi for pdf output, default is 300')
+    parser.add_argument(
+        '-f',
+        '--format',
+        metavar='format',
+        type=str,
+        default=default_format,
+        help='format trim image, default png')
+    parser.add_argument(
+        '-o',
+        '--outfile',
+        metavar='outfile',
+        type=str,
+        default=None,
+        help='output pdf name, default None')
+    parser.add_argument('filename', nargs='?', default=None, help='image file name')
+    args = parser.parse_args()
+    main(args.filename, args.dpi, args.format, args.outfile)
